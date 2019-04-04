@@ -1,7 +1,5 @@
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -9,21 +7,19 @@ public class Server {
     public static void main(String[] args) {
         try {
             ServerSocket serverSocket = new ServerSocket(8888);
+            Socket socket = null;
+            int count = 0;
             System.out.println("Server is starting, waiting for connecting from client");
-            Socket socket = serverSocket.accept();
-            InputStream is = socket.getInputStream();
-            InputStreamReader isr = new InputStreamReader(is);
-            BufferedReader br = new BufferedReader(isr);
-            String info = null;
-            while ((info = br.readLine()) != null) {
-                System.out.println("I am Server, the Client say " + info);
+            while(true)
+            {
+                socket = serverSocket.accept();
+                ServerThread serverThread = new ServerThread(socket);
+                serverThread.start();
+                count++;
+                System.out.println("The number of client is "+count);
+                InetAddress address = socket.getInetAddress();
+                System.out.println("Current client IP: "+address.getHostAddress());
             }
-            socket.shutdownInput();
-            br.close();
-            isr.close();
-            is.close();
-            socket.close();
-            serverSocket.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
